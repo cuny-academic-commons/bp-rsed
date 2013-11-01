@@ -9,6 +9,8 @@ WordPress multi-site has a native option called "Limited Email Registrations".  
 
 This plugin restricts registrations to the email domains that you specifiy and works in WordPress single-site and multi-site.
 
+Plugin was developed for the [CUNY Academic Commons](http://commons.gc.cuny.edu).
+
 
 How to use?
 - 
