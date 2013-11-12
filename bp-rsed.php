@@ -58,8 +58,18 @@ class BP_RSED {
 		foreach ( $allowed_domains as $allowed ) {
 			// see if email address matches a whitelisted domain
 			if ( self::string_ends_with( $email_domain, $allowed ) ) {
-				$okay = true;
-				break;
+				// first character doesn't contain a dot
+				// check length
+				if ( strpos( $allowed, '.' ) !== 0 ) {
+					if ( strlen( $allowed ) == strlen( $email_domain ) ) {
+						$okay = true;
+						break;
+					}
+
+				} else {
+					$okay = true;
+					break;
+				}
 			}
 		}
 
