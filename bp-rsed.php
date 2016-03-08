@@ -97,7 +97,7 @@ class BP_RSED {
 			$settings = self::get_settings();
 
 			$bp->signup->errors['signup_email'] = sprintf(
-				wp_kses_data( $settings['error_msg'] ),
+				str_replace( '{{domains}}', '%s', wp_kses_data( $settings['error_msg'] ) ),
 				implode( ', ', $allowed_domains )
 			);
 		}
@@ -112,20 +112,27 @@ class BP_RSED {
 	public function registration_msg() {
 		$allowed_domains = self::allowed_domains();
 
-		// make sure we have some whitelisted domains added
+		// Make sure we have some whitelisted domains added.
 		if ( empty( $allowed_domains ) ) {
 			return;
 		}
 
 		$settings = self::get_settings();
 
-		// make sure
 		if ( empty( $settings['registration_msg'] ) ) {
 			return;
 		}
 
 		echo apply_filters( 'comment_text',
-			sprintf( $settings['registration_msg'], '<strong>' . implode( ', ', $allowed_domains ) . '</strong>', get_option( 'admin_email' ) )
+			sprintf(
+				str_replace(
+					array( '{{domains}}', '{{adminemail}}' ),
+					array( '%1$s', '%2$s' ),
+					$settings['registration_msg']
+				),
+				'<strong>' . implode( ', ', $allowed_domains ) . '</strong>',
+				antispambot( bp_get_option( 'admin_email' ) )
+			)
 		);
 	}
 
@@ -162,14 +169,14 @@ class BP_RSED {
 
 			// Can be overriden on settings page.
 			if ( empty( $settings['registration_msg'] ) ) {
-				$settings['registration_msg'] = __( 'Registrations are currently only allowed for email addresses from these domains - %s. To register with a different address, please write to %s to request an account.', 'bp-rsed' );
+				$settings['registration_msg'] = __( 'Registrations are currently only allowed for email addresses from these domains - {{domains}}. To register with a different address, please write to {{adminemail}} to request an account.', 'bp-rsed' );
 			}
 
 		}
 
 		// Always have an error message.
 		if ( empty( $settings['error_msg'] ) ) {
-			$settings['error_msg'] = __( 'This email address is not allowed. Please use an email address from one of these domains - %s', 'bp-rsed' );
+			$settings['error_msg'] = __( 'This email address is not allowed. Please use an email address from one of these domains - {{domains}}', 'bp-rsed' );
 		}
 
 		return $settings;
