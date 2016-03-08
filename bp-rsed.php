@@ -2,16 +2,26 @@
 /*
 Plugin Name: BP Restrict Signup By Email Domain
 Description: Only allow users with email addresses from certain domains to register in BuddyPress.
-Version: 1.0
+Version: 1.0.0
 Author: r-a-y
 Author URI: http://profiles.wordpress.org/r-a-y
 License: GPLv2 or later
+Text Domain: bp-rsed
 */
+
+/**
+ * BP Restrict Signup By Email Domain Core.
+ *
+ * @package BP_RSED
+ * @subpackage Core
+ */
 
 add_action( 'bp_include', array( 'BP_RSED', 'init' ) );
 
 /**
  * BP Restrict Signup By Email Domain.
+ *
+ * @since 1.0.0
  */
 class BP_RSED {
 	/**
@@ -24,7 +34,16 @@ class BP_RSED {
 	/**
 	 * Constructor.
 	 */
-	public function __construct() {
+	protected function __construct() {
+		// This plugin only works on BuddyPress 1.6+.
+		if ( false === function_exists( 'bp_version' ) ) {
+			return;
+		}
+
+		// Translations for everybody!
+		load_plugin_textdomain( 'bp-rsed' );
+
+		// Hooks.
 		add_action( 'bp_signup_validate',               array( $this, 'validate' ) );
 		add_action( 'bp_before_account_details_fields', array( $this, 'registration_msg' ) );
 
@@ -56,10 +75,9 @@ class BP_RSED {
 		$okay = false;
 
 		foreach ( $allowed_domains as $allowed ) {
-			// see if email address matches a whitelisted domain
+			// See if email address matches a whitelisted domain.
 			if ( self::string_ends_with( $email_domain, $allowed ) ) {
-				// first character doesn't contain a dot
-				// check length
+				// First character doesn't contain a dot; check length.
 				if ( strpos( $allowed, '.' ) !== 0 ) {
 					if ( strlen( $allowed ) == strlen( $email_domain ) ) {
 						$okay = true;
@@ -73,7 +91,7 @@ class BP_RSED {
 			}
 		}
 
-		// email address doesn't match any whitelisted domain, so throw up an error
+		// Email address doesn't match any whitelisted domain, so throw up an error.
 		if ( ! $okay ) {
 			$settings = self::get_settings();
 
@@ -137,18 +155,18 @@ class BP_RSED {
 	public static function get_settings() {
 		$settings = bp_get_option( 'bp_rsed' );
 
-		// set defaults
+		// Set defaults.
 		if ( is_string( $settings ) ) {
 			$settings = array();
 
-			// can be overriden in settings page by admin
+			// Can be overriden on settings page.
 			if ( empty( $settings['registration_msg'] ) ) {
 				$settings['registration_msg'] = __( 'Registrations are currently only allowed for email addresses from these domains - %s. To register with a different address, please write to %s to request an account.', 'bp-rsed' );
 			}
 
 		}
 
-		// always have an error message
+		// Always have an error message.
 		if ( empty( $settings['error_msg'] ) ) {
 			$settings['error_msg'] = __( 'This email address is not allowed. Please use an email address from one of these domains - %s', 'bp-rsed' );
 		}
