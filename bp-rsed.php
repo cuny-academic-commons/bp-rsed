@@ -63,7 +63,7 @@ class BP_RSED {
 		$allowed_domains = self::allowed_domains();
 
 		// make sure we have some whitelisted domains added
-		if ( empty( $allowed_domains ) ) {
+		if ( empty( $allowed_domains ) || empty( $bp->signup->email ) ) {
 			return;
 		}
 
