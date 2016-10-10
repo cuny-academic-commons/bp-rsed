@@ -123,6 +123,9 @@ class BP_RSED {
 			return;
 		}
 
+		// Allow default KSES elements through.
+		add_filter( 'comment_text', 'wp_kses_post' );
+
 		echo apply_filters( 'comment_text',
 			sprintf(
 				str_replace(
@@ -134,6 +137,9 @@ class BP_RSED {
 				antispambot( bp_get_option( 'admin_email' ) )
 			)
 		);
+
+		// Remove our filter.
+		remove_filter( 'comment_text', 'wp_kses_post' );
 	}
 
 	/**
